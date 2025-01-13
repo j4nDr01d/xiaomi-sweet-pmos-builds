@@ -6,18 +6,23 @@ on:
     - cron: '0 0 * * 5' # Run every friday at midnight
 
 env:
-  KERNEL_BRANCH: next
+  KERNEL_BRANCH: v6.10
 
 jobs:
   build-image:
     strategy:
       matrix:
-        version: ["next", "default"]
+        version: ["default"]
 
     runs-on: ubuntu-latest
     steps:
       - name: Check out build configurations
         uses: actions/checkout@v4
+
+      - name: Configure git 
+        run: |
+          git config --global user.email "kanishka.developer@gmail.com"
+          git config --global user.name "Kanishka Chakraborty"
 
       - name: Substitute placeholders in configs
         run: |
@@ -25,7 +30,7 @@ jobs:
 
       - name: Install pmbootstrap from git
         run: |
-          git clone --depth=1 https://gitlab.com/postmarketOS/pmbootstrap/
+          git clone https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git --depth 1
           mkdir -p ~/.local/bin
           ln -s "$PWD/pmbootstrap/pmbootstrap.py" ~/.local/bin/pmbootstrap
           pmbootstrap --version
@@ -35,14 +40,14 @@ jobs:
           echo -e '\n\n' | pmbootstrap init || true
           cd ~/.local/var/pmbootstrap/cache_git/pmaports
           git remote add sm7150 https://github.com/sm7150-mainline/pmaports.git
-          DEFAULT_BRANCH=$(git remote show sm7150 | awk '/HEAD branch/ {print $NF}')
+          DEFAULT_BRANCH=v6.10
           git fetch sm7150 $DEFAULT_BRANCH
           git reset --hard sm7150/$DEFAULT_BRANCH
 
       - name: Check kernel branch
         if: matrix.version == 'default'
         run: |
-          DEFAULT_BRANCH=$(curl -s  https://api.github.com/repos/sm7150-mainline/linux | jq -r '.default_branch')
+          DEFAULT_BRANCH=v6.10
           echo "Default branch is $DEFAULT_BRANCH"
           echo "KERNEL_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
 
@@ -50,9 +55,9 @@ jobs:
         run: |
           git clone https://github.com/sm7150-mainline/linux.git --single-branch --branch ${{ env.KERNEL_BRANCH }} --depth 1
 
-      - name: Choose any SM7150 device in pmbootstrap to build kernel
+      - name: Choose xiaomi-sweet device in pmbootstrap to build kernel
         run: |
-          cp xiaomi-davinci.cfg ~/.config/pmbootstrap.cfg
+          cp xiaomi-sweet.cfg ~/.config/pmbootstrap_v3.cfg
 
       - name: Compile kernel with envkernel
         run: |
@@ -66,40 +71,6 @@ jobs:
       - name: Create artifact directory
         run: |
           mkdir out
-
-      - name: Build xiaomi-davinci
-        run: |
-          cp xiaomi-davinci.cfg ~/.config/pmbootstrap.cfg
-          pmbootstrap install --password 147147
-          pmbootstrap export
-          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-davinci.img
-          cp /tmp/postmarketOS-export/xiaomi-davinci.img out/rootfs-xiaomi-davinci.img
-          xz -T0 -9e -v out/rootfs-xiaomi-davinci.img
-          echo -e "n\nn\ny\n" | pmbootstrap zap
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: xiaomi-davinci-${{ env.KERNEL_BRANCH }}
-          path: out/*-davinci.img*
-          retention-days: 7
-
-      - name: Build xiaomi-surya
-        run: |
-          cp xiaomi-surya.cfg ~/.config/pmbootstrap.cfg
-          pmbootstrap install --password 147147
-          pmbootstrap export
-          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-surya.img
-          cp /tmp/postmarketOS-export/xiaomi-surya.img out/rootfs-xiaomi-surya.img
-          xz -T0 -9e -v out/rootfs-xiaomi-surya.img
-          echo -e "n\nn\ny\n" | pmbootstrap zap
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: xiaomi-surya-${{ env.KERNEL_BRANCH }}
-          path: out/*-surya.img*
-          retention-days: 7
 
       - name: Build xiaomi-sweet
         run: |
@@ -116,38 +87,4 @@ jobs:
         with:
           name: xiaomi-sweet-${{ env.KERNEL_BRANCH }}
           path: out/*-sweet.img*
-          retention-days: 7
-
-      - name: Build xiaomi-sweet_k6a
-        run: |
-          cp xiaomi-sweet_k6a.cfg ~/.config/pmbootstrap.cfg
-          pmbootstrap install --password 147147
-          pmbootstrap export
-          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-sweeet_k6a.img
-          cp /tmp/postmarketOS-export/xiaomi-sweet_k6a.img out/rootfs-xiaomi-sweet_k6a.img
-          xz -T0 -9e -v out/rootfs-xiaomi-sweet_k6a.img
-          echo -e "n\nn\ny\n" | pmbootstrap zap
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: xiaomi-sweet_k6a-${{ env.KERNEL_BRANCH }}
-          path: out/*-sweet_k6a.img*
-          retention-days: 7
-
-      - name: Build xiaomi-toco
-        run: |
-          cp xiaomi-toco.cfg ~/.config/pmbootstrap.cfg
-          pmbootstrap install --password 147147
-          pmbootstrap export
-          cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-toco.img
-          cp /tmp/postmarketOS-export/xiaomi-toco.img out/rootfs-xiaomi-toco.img
-          xz -T0 -9e -v out/rootfs-xiaomi-toco.img
-          echo -e "n\nn\ny\n" | pmbootstrap zap
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: xiaomi-toco-${{ env.KERNEL_BRANCH }}
-          path: out/*-toco.img*
           retention-days: 7
