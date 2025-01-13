@@ -6,7 +6,7 @@ on:
     - cron: '0 0 * * 5' # Run every friday at midnight
 
 env:
-  KERNEL_BRANCH: v6.10
+  KERNEL_BRANCH: v6.11
 
 jobs:
   build-image:
@@ -40,14 +40,14 @@ jobs:
           echo -e '\n\n' | pmbootstrap init || true
           cd ~/.local/var/pmbootstrap/cache_git/pmaports
           git remote add sm7150 https://github.com/sm7150-mainline/pmaports.git
-          DEFAULT_BRANCH=v6.10
+          DEFAULT_BRANCH=v6.11
           git fetch sm7150 $DEFAULT_BRANCH
           git reset --hard sm7150/$DEFAULT_BRANCH
 
       - name: Check kernel branch
         if: matrix.version == 'default'
         run: |
-          DEFAULT_BRANCH=v6.10
+          DEFAULT_BRANCH=v6.11
           echo "Default branch is $DEFAULT_BRANCH"
           echo "KERNEL_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
 
