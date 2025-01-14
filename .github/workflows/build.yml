@@ -42,7 +42,7 @@ jobs:
           git remote add sm7150 https://github.com/sm7150-mainline/pmaports.git
           DEFAULT_BRANCH=${{ env.KERNEL_BRANCH }}
           git fetch sm7150 $DEFAULT_BRANCH
-          git merge FETCH_HEAD
+          git merge -X ours sm7150/$DEFAULT_BRANCH
 
       - name: Clone kernel sources
         run: |
