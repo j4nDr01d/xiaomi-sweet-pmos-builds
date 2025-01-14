@@ -10,7 +10,8 @@ The default user is called `user`, the password is `147147`, just like on offici
 
 ## Downloading
 
-Head to the [Actions tab](https://github.com/Kanishka-Developer/nightly-builds/actions), select the most recent successful run and download the artifact. Extract the zip, de-compress the rootfs and you're ready to flash!
+Head to the [Actions tab](https://github.com/Kanishka-Developer/nightly-builds/actions), select the most recent successful run and download the artifact with the desired UI. Extract the zip, de-compress the rootfs and you're ready to flash!
 
 `fastboot flash userdata rootfs-xiaomi-sweet.img`
+
 `fastboot flash boot boot-xiaomi-sweet.img`
