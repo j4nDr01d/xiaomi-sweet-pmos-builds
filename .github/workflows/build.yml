@@ -67,6 +67,7 @@ jobs:
       - name: Build xiaomi-sweet
         run: |
           cp xiaomi-sweet.cfg ~/.config/pmbootstrap.cfg
+          pmbootstrap config ui gnome-mobile
           pmbootstrap install --password 147147
           pmbootstrap export
           cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-sweet.img
