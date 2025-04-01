@@ -60,6 +60,7 @@ jobs:
           make defconfig sm7150.config
           make -j$(nproc)
           pmbootstrap build --envkernel linux-postmarketos-qcom-sm7150
+          cp .output/arch/arm64/boot/dts/qcom/sm7150-xiaomi-sweet.dtb ~/.local/var/pmbootstrap/chroot_rootfs_xiaomi-sweet/boot/dtbs/qcom/
       - name: Create artifact directory
         run: |
           mkdir out
